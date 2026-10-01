@@ -40,19 +40,24 @@
         <a href="#database" class="bg-[#5645d4] hover:bg-[#4534b3] text-white text-[14px] font-medium py-2 px-4 rounded-[8px] transition-colors">맛집 찾기</a>
     </nav>
 
-    <header class="notion-hero text-[#ffffff] pt-[80px] pb-[120px] px-6 relative overflow-hidden flex flex-col items-center text-center">
-        <div class="absolute top-32 left-[20%] w-3 h-3 bg-[#ff64c8] rounded-full shadow-[0_0_10px_rgba(255,100,200,0.5)] animate-pulse"></div>
-        <div class="absolute top-40 right-[25%] w-4 h-4 bg-[#f5d75e] rounded-full shadow-[0_0_10px_rgba(245,215,94,0.5)]"></div>
-        <div class="absolute bottom-40 left-[25%] w-2.5 h-2.5 bg-[#2a9d99] rounded-full shadow-[0_0_10px_rgba(42,157,153,0.5)]"></div>
-        <h1 class="font-['Inter'] text-[44px] md:text-[72px] font-semibold leading-[1.1] tracking-[-2px] mb-6 max-w-4xl z-10 relative">
-            인생 최대의 고민,<br><span class="text-[#d6b6f6]">오늘 뭐 먹지?</span>
-        </h1>
-        <p class="text-[18px] md:text-[20px] font-normal text-[#a4a097] max-w-2xl mb-10 z-10 leading-[1.5]">
-            40대 아재들 입맛을 위한 메뉴 선택<br class="hidden md:block">
-            네이버 지도에서 확인된 전국 <span id="hero-count">364</span>곳의 찐 맛집 데이터 통합본 입니다.
-        </p>
-        <div class="flex gap-4 z-10">
-            <a href="#database" class="bg-[#5645d4] hover:bg-[#4534b3] text-white text-[16px] font-medium py-2.5 px-6 rounded-[8px] transition-colors shadow-sm">메뉴 고르러 가기</a>
+    <!-- 히어로: 배경 사진은 hero.jpg -->
+    <header id="hero" class="relative overflow-hidden bg-[#1a1a1a] text-white bg-cover bg-[position:70%_30%]" style="background-image:url('hero.jpg')">
+        <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/20"></div>
+        <div class="relative max-w-[960px] mx-auto px-4 md:px-6 pt-[72px] md:pt-[110px] pb-[56px] md:pb-[80px]">
+            <p class="text-[13px] tracking-[3px] text-white/70 mb-4">SINCE 2026 · 전국 364곳</p>
+            <h1 class="text-[25px] md:text-[46px] font-light leading-[1.35] tracking-[-1px] mb-8">
+                안녕하세요.<br>40대 아저씨 입맛으로<br>내돈내산 해서 선별한<br><b class="font-bold">아재 맛집 지도</b> 입니다.
+            </h1>
+            <form id="hero-search" class="bg-white rounded-full flex items-center pl-5 pr-2 py-2 shadow-[0_12px_40px_rgba(0,0,0,0.3)] max-w-[680px]">
+                <i class="fas fa-search text-[#a4a097] mr-3"></i>
+                <input id="hero-input" type="search" placeholder="가게 이름, 메뉴, 지역 (예: 짬뽕, 포항, 막창)" class="flex-grow min-w-0 text-[#1a1a1a] text-[16px] py-2 focus:outline-none bg-transparent">
+                <button class="bg-[#1a1a1a] hover:bg-black text-white text-[15px] font-medium rounded-full px-5 py-2.5 whitespace-nowrap">검색</button>
+            </form>
+
+            <h3 class="text-[15px] font-semibold mt-10 mb-3">어디로 갈까요?</h3>
+            <div class="flex overflow-x-auto hide-scrollbar gap-2 pb-1" id="hero-places"></div>
+            <h3 class="text-[15px] font-semibold mt-6 mb-3">무엇을 먹을까요?</h3>
+            <div class="flex overflow-x-auto hide-scrollbar gap-2 pb-1" id="hero-foods"></div>
         </div>
     </header>
 
@@ -613,6 +618,22 @@
             render();
         });
         $('search-input').addEventListener('input', e => { state.q = e.target.value; render(); });
+
+        // 히어로: 검색창 + 바로가기 칩 (모두 아래 맛집 검색으로 연결)
+        const searchFor = q => {
+            $('search-input').value = q; state.q = q; render();
+            document.getElementById('database').scrollIntoView({ behavior: 'smooth' });
+        };
+        $('hero-search').addEventListener('submit', e => { e.preventDefault(); searchFor($('hero-input').value.trim()); });
+        const CHIP = 'whitespace-nowrap text-[14px] px-4 py-2 rounded-full border border-white/40 bg-white/10 hover:bg-white hover:text-[#1a1a1a] backdrop-blur-sm transition-colors';
+        const chips = (el, words) => words.forEach(w => {
+            const b = document.createElement('button');
+            b.type = 'button'; b.className = CHIP; b.textContent = w;
+            b.onclick = () => searchFor(w);
+            el.appendChild(b);
+        });
+        chips($('hero-places'), ['대구', '서울', '부산', '포항', '강릉', '고양', '파주', '창원', '동해', '이천', '광주']);
+        chips($('hero-foods'), ['국밥', '짬뽕', '칼국수', '냉면', '물회', '막창', '족발', '아구찜', '추어탕', '곱창', '라멘']);
 
         render();
     });
